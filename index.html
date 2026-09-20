@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Health Calculator | โปรแกรมคำนวณค่าดัชนีมวลกาย</title>
+  <meta name="description" content="แอปพลิเคชันคำนวณค่าดัชนีมวลกาย (BMI) พร้อมเกณฑ์เอเชียและสากล คำนวณ BMR, TDEE, ช่วงน้ำหนักที่เหมาะสม และคำแนะนำสุขภาพ">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow Accents -->
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <div class="app-wrapper">
+    <!-- Navbar / Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title" data-i18n="appTitle">BMI Health Tracker</h1>
+          <p class="brand-subtitle" data-i18n="appSubtitle">คำนวณดัชนีมวลกายและวิเคราะห์สุขภาพอัจฉริยะ</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Language Switcher -->
+        <div class="lang-switch" role="group" aria-label="Language Switcher">
+          <button type="button" id="langThBtn" class="lang-btn active" title="ภาษาไทย">TH</button>
+          <button type="button" id="langEnBtn" class="lang-btn" title="English">EN</button>
+        </div>
+
+        <!-- Dark/Light Mode Switcher -->
+        <button type="button" id="themeToggleBtn" class="icon-btn" aria-label="สลับธีม">
+          <span class="theme-icon light-icon">☀️</span>
+          <span class="theme-icon dark-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="main-grid">
+      <!-- Left Column: Input Form -->
+      <section class="card form-card">
+        <div class="card-header">
+          <h2 class="card-title" data-i18n="inputTitle">กรอกข้อมูลร่างกาย</h2>
+          <span class="badge badge-info" data-i18n="badgePersonal">ข้อมูลส่วนบุคคล</span>
+        </div>
+
+        <form id="bmiForm" class="bmi-form">
+          <!-- Standard Criterion Selector -->
+          <div class="form-group">
+            <label class="form-label" data-i18n="standardLabel">เกณฑ์การประเมิน</label>
+            <div class="segmented-control">
+              <input type="radio" name="standard" id="stdAsian" value="asian" checked>
+              <label for="stdAsian" data-i18n="stdAsian">เกณฑ์เอเชีย (แนะนำสำหรับคนไทย)</label>
+
+              <input type="radio" name="standard" id="stdWho" value="who">
+              <label for="stdWho" data-i18n="stdWho">เกณฑ์สากล (WHO)</label>
+            </div>
+          </div>
+
+          <!-- Gender Selection -->
+          <div class="form-group">
+            <label class="form-label" data-i18n="genderLabel">เพศกำเนิด</label>
+            <div class="gender-selector">
+              <label class="gender-option">
+                <input type="radio" name="gender" value="male" checked>
+                <div class="gender-box">
+                  <span class="gender-symbol">👨</span>
+                  <span data-i18n="male">ชาย</span>
+                </div>
+              </label>
+
+              <label class="gender-option">
+                <input type="radio" name="gender" value="female">
+                <div class="gender-box">
+                  <span class="gender-symbol">👩</span>
+                  <span data-i18n="female">หญิง</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <!-- Age Input -->
+            <div class="form-group col-half">
+              <label for="ageInput" class="form-label" data-i18n="ageLabel">อายุ (ปี)</label>
+              <div class="input-wrapper">
+                <input type="number" id="ageInput" min="1" max="120" value="25" required placeholder="25">
+                <span class="input-unit" data-i18n="yearsUnit">ปี</span>
+              </div>
+            </div>
+
+            <!-- Activity Level Input -->
+            <div class="form-group col-half">
+              <label for="activityInput" class="form-label" data-i18n="activityLabel">กิจกรรมประจำวัน</label>
+              <select id="activityInput" class="custom-select">
+                <option value="1.2" data-i18n="actSedentary">นั่งทำงานอยู่กับที่ / ไม่ออกกำลังกาย</option>
+                <option value="1.375" selected data-i18n="actLight">ออกกำลังกายเบาๆ 1-3 วัน/สัปดาห์</option>
+                <option value="1.55" data-i18n="actModerate">ออกกำลังกายปานกลาง 3-5 วัน/สัปดาห์</option>
+                <option value="1.725" data-i18n="actActive">ออกกำลังกายหนัก 6-7 วัน/สัปดาห์</option>
+                <option value="1.9" data-i18n="actVeryActive">ออกกำลังกายหนักมาก / นักกีฬา</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Height Input -->
+          <div class="form-group">
+            <div class="label-with-hint">
+              <label for="heightInput" class="form-label" data-i18n="heightLabel">ส่วนสูง (เซนติเมตร)</label>
+              <span id="heightConversion" class="conversion-hint">1.70 เมตร (5 ฟุต 7 นิ้ว)</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="heightInput" min="50" max="250" step="0.5" value="170" required placeholder="170">
+              <span class="input-unit">cm</span>
+            </div>
+            <input type="range" id="heightSlider" min="100" max="220" value="170" class="custom-slider" tabindex="-1">
+          </div>
+
+          <!-- Weight Input -->
+          <div class="form-group">
+            <div class="label-with-hint">
+              <label for="weightInput" class="form-label" data-i18n="weightLabel">น้ำหนักตัว (กิโลกรัม)</label>
+              <span id="weightConversion" class="conversion-hint">143.3 ปอนด์ (lbs)</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="weightInput" min="20" max="300" step="0.1" value="65" required placeholder="65">
+              <span class="input-unit">kg</span>
+            </div>
+            <input type="range" id="weightSlider" min="30" max="150" value="65" class="custom-slider" tabindex="-1">
+          </div>
+
+          <!-- Form Buttons -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="calcBtn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span data-i18n="btnCalculate">คำนวณผลลัพธ์</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="resetBtn" data-i18n="btnReset">รีเซ็ต</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Results & Analysis -->
+      <section class="card results-card" id="resultsSection">
+        <div class="card-header">
+          <h2 class="card-title" data-i18n="resultsTitle">ผลการวิเคราะห์สุขภาพ</h2>
+          <span id="resultStandardBadge" class="badge badge-standard">เกณฑ์เอเชีย</span>
+        </div>
+
+        <!-- BMI Gauge Visualizer -->
+        <div class="gauge-container">
+          <div class="gauge-visual">
+            <svg viewBox="0 0 200 110" class="gauge-svg">
+              <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke-width="18" stroke-linecap="round" />
+              <path class="gauge-fill" id="gaugeFill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke-width="18" stroke-linecap="round" />
+            </svg>
+            <div class="gauge-needle" id="gaugeNeedle">
+              <div class="needle-pointer"></div>
+            </div>
+          </div>
+
+          <div class="bmi-score-box">
+            <span class="bmi-caption" data-i18n="yourBmiCaption">ค่า BMI ของคุณ</span>
+            <div class="bmi-number" id="bmiValue">22.5</div>
+            <div class="bmi-category" id="bmiCategoryBadge">น้ำหนักปกติ / สมส่วน</div>
+          </div>
+        </div>
+
+        <!-- BMI Scale Color Spectrum -->
+        <div class="scale-bar-wrapper">
+          <div class="scale-bar">
+            <div class="scale-segment seg-under" title="ผอม / น้ำหนักน้อย"></div>
+            <div class="scale-segment seg-normal" title="ปกติ / สมส่วน"></div>
+            <div class="scale-segment seg-over" title="น้ำหนักเกิน / ท้วม"></div>
+            <div class="scale-segment seg-obese1" title="อ้วนระดับ 1"></div>
+            <div class="scale-segment seg-obese2" title="อ้วนระดับ 2"></div>
+          </div>
+          <div class="scale-ticks" id="scaleTicks">
+            <span>&lt; 18.5</span>
+            <span>23.0</span>
+            <span>25.0</span>
+            <span>30.0+</span>
+          </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="metrics-grid">
+          <!-- Metric 1: Ideal Weight -->
+          <div class="metric-box">
+            <div class="metric-icon icon-green">🎯</div>
+            <div class="metric-data">
+              <span class="metric-label" data-i18n="idealWeightLabel">ช่วงน้ำหนักที่เหมาะสม</span>
+              <span class="metric-val" id="idealWeightVal">53.5 - 66.2 กก.</span>
+              <span class="metric-sub" id="weightDiffVal">น้ำหนักของคุณอยู่ในเกณฑ์พอดี</span>
+            </div>
+          </div>
+
+          <!-- Metric 2: BMR -->
+          <div class="metric-box">
+            <div class="metric-icon icon-purple">⚡</div>
+            <div class="metric-data">
+              <span class="metric-label" data-i18n="bmrLabel">BMR พลังงานพื้นฐาน</span>
+              <span class="metric-val" id="bmrVal">1,540 kcal</span>
+              <span class="metric-sub" data-i18n="bmrSub">พลังงานขั้นต่ำที่ร่างกายต้องการ</span>
+            </div>
+          </div>
+
+          <!-- Metric 3: TDEE -->
+          <div class="metric-box">
+            <div class="metric-icon icon-orange">🔥</div>
+            <div class="metric-data">
+              <span class="metric-label" data-i18n="tdeeLabel">TDEE พลังงานเผาผลาญ/วัน</span>
+              <span class="metric-val" id="tdeeVal">2,118 kcal</span>
+              <span class="metric-sub" data-i18n="tdeeSub">ตามระดับกิจกรรมประจำวัน</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personalized Health Advice -->
+        <div class="advice-card" id="adviceCard">
+          <h3 class="advice-header">
+            <span class="advice-icon">💡</span>
+            <span data-i18n="adviceTitle">คำแนะนำเฉพาะบุคคล</span>
+          </h3>
+          <ul class="advice-list" id="adviceList">
+            <li>รักษาระดับการรับประทานอาหารที่ครบ 5 หมู่ให้สมดุล</li>
+            <li>ออกกำลังกายสม่ำเสมออย่างน้อย 150 นาทีต่อสัปดาห์</li>
+            <li>ดื่มน้ำเปล่าให้เพียงพอ 2 - 2.5 ลิตรต่อวัน</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <!-- BMI Reference Standards Table Section -->
+    <section class="card table-card">
+      <div class="card-header">
+        <h2 class="card-title" data-i18n="refTableTitle">ตารางเกณฑ์เปรียบเทียบค่าดัชนีมวลกาย (BMI Reference)</h2>
+        <span class="badge badge-neutral" data-i18n="refSource">อ้างอิง: กรมอนามัย & องค์การอนามัยโลก</span>
+      </div>
+      <div class="table-responsive">
+        <table class="reference-table">
+          <thead>
+            <tr>
+              <th data-i18n="thCategory">ระดับสถานะร่างกาย</th>
+              <th data-i18n="thAsianRange">เกณฑ์เอเชีย / ไทย (kg/m²)</th>
+              <th data-i18n="thWhoRange">เกณฑ์สากล WHO (kg/m²)</th>
+              <th data-i18n="thRisk">ความเสี่ยงต่อโรคเรื้อรัง</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-under">
+              <td><span class="dot dot-under"></span><strong data-i18n="rowUnder">น้ำหนักน้อย / ผอม</strong></td>
+              <td>&lt; 18.5</td>
+              <td>&lt; 18.5</td>
+              <td data-i18n="riskUnder">เสี่ยงต่อภาวะขาดสารอาหาร ภูมิคุ้มกันต่ำ</td>
+            </tr>
+            <tr class="row-normal">
+              <td><span class="dot dot-normal"></span><strong data-i18n="rowNormal">น้ำหนักปกติ / สมส่วน</strong></td>
+              <td>18.5 – 22.9</td>
+              <td>18.5 – 24.9</td>
+              <td data-i18n="riskNormal">เท่าคนปกติ ความเสี่ยงโรคต่ำที่สุด</td>
+            </tr>
+            <tr class="row-over">
+              <td><span class="dot dot-over"></span><strong data-i18n="rowOver">น้ำหนักเกิน / ท้วม</strong></td>
+              <td>23.0 – 24.9</td>
+              <td>25.0 – 29.9</td>
+              <td data-i18n="riskOver">เริ่มเสี่ยงต่อโรคเบาหวานและความดัน</td>
+            </tr>
+            <tr class="row-obese1">
+              <td><span class="dot dot-obese1"></span><strong data-i18n="rowObese1">อ้วนระดับ 1</strong></td>
+              <td>25.0 – 29.9</td>
+              <td>30.0 – 34.9</td>
+              <td data-i18n="riskObese1">เสี่ยงสูงต่อไขมันในเลือดสูง เบาหวาน ความดัน</td>
+            </tr>
+            <tr class="row-obese2">
+              <td><span class="dot dot-obese2"></span><strong data-i18n="rowObese2">อ้วนระดับ 2 / อ้วนอันตราย</strong></td>
+              <td>&ge; 30.0</td>
+              <td>&ge; 35.0</td>
+              <td data-i18n="riskObese2">เสี่ยงอันตรายสูงสุดต่อโรคหัวใจและหลอดเลือด</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Calculation History Section -->
+    <section class="card history-card">
+      <div class="card-header">
+        <h2 class="card-title" data-i18n="historyTitle">ประวัติการคำนวณล่าสุด</h2>
+        <button type="button" id="clearHistoryBtn" class="btn btn-sm btn-outline-danger" data-i18n="btnClearHistory">ล้างประวัติ</button>
+      </div>
+      <div id="historyContainer" class="history-container">
+        <!-- History items dynamically generated by JavaScript -->
+        <p class="empty-history" id="emptyHistoryNotice" data-i18n="emptyHistory">ยังไม่มีประวัติการคำนวณ</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>BMI Health Calculator &bull; พัฒนาขึ้นเพื่อการประเมินสุขภาพเบื้องต้น &bull; <a href="https://github.com/maneetaraks/NEW.BMI" target="_blank" rel="noopener">GitHub: maneetaraks/NEW.BMI</a></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

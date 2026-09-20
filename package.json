@@ -1,0 +1,20 @@
+{
+  "name": "new-bmi",
+  "version": "1.0.0",
+  "description": "BMI Health Calculator & Smart Health Tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "bmi",
+    "health",
+    "calculator",
+    "fitness",
+    "bmr",
+    "tdee"
+  ],
+  "author": "maneetaraks",
+  "license": "MIT"
+}
